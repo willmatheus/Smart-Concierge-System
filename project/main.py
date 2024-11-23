@@ -1,5 +1,6 @@
 import cv2
 import kivy
+import requests
 
 kivy.require('1.9.1') 
 
@@ -105,6 +106,13 @@ class WelcomeScreen(Screen):
         name = self.username.text
         cpf = self.cpf.text
         apartamento = self.apartamento.text
+        response = requests.post(f'http://localhost:5000/resident', json= {
+            'cpf': cpf,
+            'name': name,
+            'apartment_number': apartamento
+        })
+        if response.ok:
+            print(f"User {name} created sucessfully!")
         print("Nome:", name, "\nCPF:", cpf, "\nApartamento:", apartamento)
         print('Cadastro efetuado com sucesso')
 
