@@ -10,3 +10,4 @@ opencv-python==4.10.0.84
 Pygments==2.18.0
 requests==2.32.3
 urllib3==2.2.3
+paho-mqtt==2.1.0
