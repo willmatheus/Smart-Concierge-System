@@ -15,10 +15,9 @@ from kivy.uix.image import Image
 from kivy.uix.button import Button
 from kivy.uix.floatlayout import FloatLayout
 from kivy.uix.textinput import TextInput
-from kivy.core.window import Window
 
 # COR DA JANELA E TAMANHO
-Window.clearcolor = (0.5, 0.5, 0.5, 1)
+Window.clearcolor = (0.9, 0.9, 0.9, 1)  # Cor mais suave para o fundo
 Window.size = (980, 720)
 
 # CAMERA NO KIVY CONFIGURAÇÃO
@@ -28,7 +27,6 @@ class KivyCV(Image):
         self.capture = capture
         Clock.schedule_interval(self.update, 1.0 / fps)
 
-    # CONFIGURAÇÃO PARA DETECTAR FACE
     def update(self, dt):
         ret, frame = self.capture.read()
         if ret:
@@ -37,13 +35,10 @@ class KivyCV(Image):
             faces = faceCascade.detectMultiScale(gray, scaleFactor=1.2, minNeighbors=5, minSize=(20, 20))
             for (x, y, w, h) in faces:
                 cv2.rectangle(frame, (x, y), (x + w, y + h), (0, 255, 0), 2)
-            # TRANSFORMANDO UMA IMAGEM EM TEXTURA PARA COLOCAR A CAMERA
             buf = cv2.flip(frame, 0).tostring()
             image_texture = Texture.create(size=(frame.shape[1], frame.shape[0]), colorfmt='bgr')
             image_texture.blit_buffer(buf, colorfmt='bgr', bufferfmt='ubyte')
-            # display image from the texture
             self.texture = image_texture
-
 
 # FUNÇÃO DO SCREAN PARA MUDAR DE TELA
 class SISTEMA(App):
@@ -58,136 +53,90 @@ class WelcomeScreen(Screen):
     def __init__(self, **kwargs):
         super(WelcomeScreen, self).__init__(**kwargs)
         layout1 = FloatLayout()
-        box = BoxLayout(orientation='horizontal', size_hint=(0.4, 0.2), padding=8, pos_hint={'top': 0.2, 'center_x': 0.5})
-        tituloscreen1 = Label(text='CLIQUE EM FOTOS PARA CADASTRAR AS FACES PARA O RECONHECIMENTO',color =[1, 0, 0, 1], halign='center',
-                              font_name = 'Roboto-Bold', valign='center', size_hint=(0.4, 0.2), pos_hint={'top': 0.3, 'center_x': 0.5})
 
-        # TILULO DO PROGRAMA
-        self.title1 = Label(text='SISTEMA DE CADASTRO')
-        self.title1.font_size = '60sp'
-        self.title1.color = [1, 25, 91, 1]
-        self.title1.font_name = 'Roboto-Bold'
-        self.title1.size_hint = (.99, .99)
-        self.title1.pos_hint = {'x': .0, 'y': .40}
+        # Título melhorado com uma cor mais neutra
+        self.title1 = Label(text='SISTEMA DE CADASTRO', font_size='50sp', color=[0.2, 0.2, 0.8, 1],
+                            font_name='Roboto-Bold', size_hint=(None, None), size=(700, 100), pos_hint={'x': 0.15, 'top': 0.85})
 
-        # CONFIGURAÇÃO DO BOTÃO TIRAR FOTOS
-        FOTO = Button(text='FOTOS', on_press=self.tirarfoto)
+        # Descrição mais suave e moderna
+        tituloscreen1 = Label(text='CLIQUE EM FOTOS PARA CADASTRAR AS FACES PARA O RECONHECIMENTO', color=[0.3, 0.3, 0.3, 1],
+                              halign='center', font_name='Roboto-Regular', valign='center', size_hint=(0.9, 0.15),
+                              pos_hint={'x': 0.05, 'top': 0.77})
 
-        # CONFIGURAÇÃO DO BOTÃO CADASTRO
-        CADASTRAR = Button(text='CADASTRAR', on_press=self.cadastrar)
+        # Campos de entrada compactos
+        self.username = TextInput(hint_text="Nome", multiline=False, size_hint=(0.7, None), height=45, font_size=18,
+                                  background_normal='', background_active='',
+                                  foreground_color=[0.1, 0.1, 0.1, 1], padding=10, pos_hint={'x': 0.15, 'y': 0.6})
+        self.username.border = [0, 0, 0, 0]
 
-        # CAMPO NOME: CAIXA E TEXTO INPUT
-        self.caixatexto = (Label(text="NOME:"))
-        self.caixatexto.size_hint = (.005, .07)
-        self.caixatexto.font_size = 26
-        self.caixatexto.pos_hint = {'x': .21, 'y': .72}
-        self.username = TextInput(multiline=False)
-        self.username.write_tab = False
-        self.username.size_hint = (.5, .07)
-        self.username.font_size = 26
-        self.username.pos_hint = {'x': .30, 'y': .72}
+        self.cpf = TextInput(hint_text="CPF", multiline=False, size_hint=(0.7, None), height=45, font_size=18,
+                             background_normal='', background_active='', foreground_color=[0.1, 0.1, 0.1, 1], padding=10,
+                             pos_hint={'x': 0.15, 'y': 0.5})
+        self.cpf.border = [0, 0, 0, 0]
 
-        # CAMPO CPF: CAIXA E TEXTO INPUT
-        self.caixatextocpf = (Label(text="CPF:"))
-        self.caixatextocpf.size_hint = (.005, .07)
-        self.caixatextocpf.font_size = 26
-        self.caixatextocpf.pos_hint = {'x': .21, 'y': .60}
-        self.cpf = TextInput(multiline=False)
-        self.cpf.write_tab = False
-        self.cpf.size_hint = (.5, .07)
-        self.cpf.font_size = 26
-        self.cpf.pos_hint = {'x': .30, 'y': .60}
+        self.apartamento = TextInput(hint_text="Apartamento", multiline=False, size_hint=(0.7, None), height=45, font_size=18,
+                                      background_normal='', background_active='', foreground_color=[0.1, 0.1, 0.1, 1], padding=10,
+                                      pos_hint={'x': 0.15, 'y': 0.4})
+        self.apartamento.border = [0, 0, 0, 0]
 
-        # CAMPO apartamento: CAIXA E TEXTO INPUT
-        self.caixatextoapartamento = (Label(text="AP:"))
-        self.caixatextoapartamento.size_hint = (.005, .07)
-        self.caixatextoapartamento.font_size = 26
-        self.caixatextoapartamento.pos_hint = {'x': .21, 'y': .48}
-        self.apartamento = TextInput(multiline=False)
-        self.apartamento.write_tab = False
-        self.apartamento.size_hint = (.5, .07)
-        self.apartamento.font_size = 26
-        self.apartamento.pos_hint = {'x': .30, 'y': .48}
+        # Botões modernos
+        FOTO = Button(text='TIRAR FOTOS', on_press=self.tirarfoto, size_hint=(0.4, None), height=50, font_size=18,
+                      background_color=[0.3, 0.6, 0.3, 1], color=[1, 1, 1, 1], pos_hint={'x': 0.05, 'y': 0.2})
 
-        # LAYOUT PARA MOSTRAR OS WIDGET NA TELA
-        # WIDGETS BOXLAYOUT
-        box.add_widget(CADASTRAR)
-        box.add_widget(FOTO)
+        CADASTRAR = Button(text='CADASTRAR', on_press=self.cadastrar, size_hint=(0.4, None), height=50, font_size=18,
+                           background_color=[0.4, 0.4, 0.8, 1], color=[1, 1, 1, 1], pos_hint={'x': 0.55, 'y': 0.2})
 
-        # WIDGETES FLOATLAYOUT
-        layout1.add_widget(box)
+        # Layout do welcome screen
         layout1.add_widget(self.title1)
-        layout1.add_widget(self.username)
-        layout1.add_widget(self.caixatexto)
-        layout1.add_widget(self.cpf)
-        layout1.add_widget(self.caixatextocpf)
-        layout1.add_widget(self.apartamento)
-        layout1.add_widget(self.caixatextoapartamento)
         layout1.add_widget(tituloscreen1)
+        layout1.add_widget(self.username)
+        layout1.add_widget(self.cpf)
+        layout1.add_widget(self.apartamento)
+        layout1.add_widget(FOTO)
+        layout1.add_widget(CADASTRAR)
 
-        # CONFIGURAÇÃO LAYOUT1
         self.add_widget(layout1)
 
-    # FUNÇÃO DO CLIQUE PARA IR TIRAR AS FOTOS
     def tirarfoto(self, instance):
-        print('VOCE FOI PARA TELA 2')
+        print('Você foi para a tela 2')
         self.manager.current = 'functionScreen'
 
-    # FUNÇÃO DO CLIQUE CADASTRAR
     def cadastrar(self, instance):
         name = self.username.text
         cpf = self.cpf.text
         apartamento = self.apartamento.text
-        print("Name:", name, "\nCPF:", cpf, "\n APARTAMENTO:", apartamento)
-
-        print('CADASTRO EFETUADO COM SUCESSO')
-
-
+        print("Nome:", name, "\nCPF:", cpf, "\nApartamento:", apartamento)
+        print('Cadastro efetuado com sucesso')
 
 # SEGUNDA TELA DO SCREEN
 class FunctionScreen(Screen):
     def __init__(self, **kwargs):
         super(FunctionScreen, self).__init__(**kwargs)
         layout2 = FloatLayout()
-        tituloscreen2 = Label(text='CLIQUE NO BOTÃO FOTO PARA REGISTRAR AS FACES NO BANDO DE DADOS'
-                               '\nATENÇÃO APÓS TIRAR AS 30 FOTOS CLIQUE EM VOLTAR PARA CONFIRMAR O CADASTRO',
-                              halign='center', valign='center', size_hint=(0.4, 0.2),
-                              color =[1, 0, 0, 1], pos_hint={'top': 1, 'center_x': 0.5})
 
-        # CONFIGURAÇÃO DO FLOATLAYOUT
-        self.add_widget(layout2) 
+        # Título
+        tituloscreen2 = Label(text='CLIQUE NO BOTÃO FOTOS PARA REGISTRAR AS FACES\nATENÇÃO APÓS TIRAR AS 30 FOTOS CLIQUE EM VOLTAR',
+                              halign='center', font_name='Roboto-Regular', size_hint=(0.9, 0.15), color=[0.3, 0.3, 0.3, 1],
+                              pos_hint={'x': 0.05, 'top': 0.9})
 
-        # CONFIGURAÇÕES DO BOTÃO VOLTAR
-        self.botaoClick1 = Button(text='VOLTAR')
-        self.botaoClick1.size_hint = (.2, .1)
-        self.botaoClick1.pos_hint = {'x': .55, 'y': .50}
+        # Botões de ação
+        self.botaoClick1 = Button(text='VOLTAR', on_press=self.voltar, size_hint=(0.3, None), height=50, font_size=18,
+                                  background_color=[0.8, 0.4, 0.4, 1], color=[1, 1, 1, 1], pos_hint={'x': 0.35, 'y': 0.2})
 
-        # CONFIGURAÇÕES DO BOTÃO TIRAR FOTOS
-        self.botaoClick2 = Button(text='TIRAR FOTOS')
-        self.botaoClick2.size_hint = (.2, .1)
-        self.botaoClick2.pos_hint = {'x': .25, 'y': .50}
+        self.botaoClick2 = Button(text='TIRAR FOTOS', on_press=self.fotofaces, size_hint=(0.3, None), height=50, font_size=18,
+                                  background_color=[0.4, 0.7, 0.4, 1], color=[1, 1, 1, 1], pos_hint={'x': 0.35, 'y': 0.35})
 
-        # FUNÇÃO DE CLICK DO BOTÃO VOLTAR
-        self.botaoClick1.bind(on_press=self.voltar)
-        self.botaoClick2.bind(on_press=self.fotofaces)
-
-        # LAYOUT PARA MOSTRAR OS WIDGET NA TELA
-        layout2.add_widget(tituloscreen2) 
+        layout2.add_widget(tituloscreen2)
         layout2.add_widget(self.botaoClick1)
         layout2.add_widget(self.botaoClick2)
 
-        # RETORNA PARA O WIDGET
+        self.add_widget(layout2)
 
-    # FUNÇÃO DO CLIQUE VOLTAR
     def voltar(self, *args):
-        print('VOCE CLICOU NO BOTÃO VOLTAR')
         self.manager.current = 'welcomeScreen'
 
-    # FUNÇÃO DO CLIQUE PARA EXTRAIR AS FACES
     def fotofaces(self, *args):
-        print('VOCE CLICOU NO BOTÃO TIRAR FOTOS')
 
-        # CODIGO PARA EXTRAIR AS IMAGENS
         def face_extractor(img):
             face_classifier = cv2.CascadeClassifier("lib/haarcascade_frontalface_default.xml")
             gray = cv2.cvtColor(img,cv2.COLOR_BGR2GRAY)

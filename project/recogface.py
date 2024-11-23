@@ -45,7 +45,7 @@ client.connect(MQTT_BROKER, MQTT_PORT, 60)
 client.loop_start()
 
 # COR DA JANELA E TAMANHO
-Window.clearcolor = (0, 0.1, 0, 1)
+Window.clearcolor = (0, 0, 0, 1)
 Window.size = (1280, 720)
 
 # DIRETORIO DAS IMAGENS
@@ -94,22 +94,20 @@ class KivyCV(Image):
             result = model.predict(face)
             if result[1] < 500:
                 confidence = int(100 * (1 - (result[1]) / 300))
-                display_string = str(confidence) + '% Confidence it is user'
-            cv2.putText(image, display_string, (100, 120), cv2.FONT_HERSHEY_COMPLEX, 1, (250, 120, 255), 2)
+                display_string = str(confidence) + '% de similaridade'
+            cv2.putText(image, display_string, (100, 120), cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 255, 0), 1)
+
             if confidence >= 85:
-                cv2.putText(image, "IDENTIFICADO", (250, 450), cv2.FONT_HERSHEY_COMPLEX, 1, (0, 255, 0), 2)
+                cv2.putText(image, "IDENTIFICADO", (220, 450), cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 255, 0), 2)
                 client.publish(MQTT_TOPIC_LIBERAR_MORADOR, "Reconhecimento bem-sucedido!")
                 print(f"Liberando...")
-                return 
-            else:
-                cv2.putText(image, "BLOQUEADO", (250, 450), cv2.FONT_HERSHEY_COMPLEX, 1, (0, 0, 255), 2)
-                client.publish(MQTT_TOPIC_SOLICITACAO_ENTRADA, "Solicitando entrada")
-                return
+                pass 
+
         except Exception as e:
-            print(f"Erro no reconhecimento facial: {e}")
-            cv2.putText(image, "ERRO", (250, 450), cv2.FONT_HERSHEY_COMPLEX, 1, (255, 0, 0), 2)
-            pass
-        # TRANSFORMANDO UMA IMAGEM EM TEXTURA PARA COLOCAR A CAMERA
+                cv2.putText(image, "BLOQUEADO", (250, 450), cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 0, 255), 2)
+                client.publish(MQTT_TOPIC_SOLICITACAO_ENTRADA, "Solicitando entrada")
+                pass
+
         buf = cv2.flip(frame, 0).tostring()
         image_texture = Texture.create(size=(frame.shape[1], frame.shape[0]), colorfmt='bgr')
         image_texture.blit_buffer(buf, colorfmt='bgr', bufferfmt='ubyte')
@@ -136,8 +134,7 @@ class FunctionScreen(Screen):
         layout2 = FloatLayout()
         tituloscreen2 = Label(text='RECONHECIMENTO\nPOSICIONE SEU ROSTO NO SENSOR',
                               halign='center', valign='center', size_hint=(0.4, 0.2),
-                              font_size=40, font_name='Roboto-Bold', underline='True', outline_width=1,
-                              outline_color=[1, 1, 1], color=[1, 0, 0, 0.5], pos_hint={'top': 1, 'center_x': 0.5})
+                              font_size=40, font_name='Roboto-Bold', color=[1, 1, 1, 1], pos_hint={'top': 1, 'center_x': 0.5})
 
         # CONFIGURAÇÃO DO FLOATLAYOUT
         self.add_widget(layout2)
