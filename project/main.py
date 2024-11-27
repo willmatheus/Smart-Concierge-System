@@ -1,21 +1,4 @@
-import cv2
-import kivy
-import requests
-
-kivy.require('1.9.1') 
-
-from kivy.lang import Builder
-from kivy.core.window import Window
-from kivy.clock import Clock
-from kivy.uix.label import Label
-from kivy.uix.boxlayout import BoxLayout
-from kivy.uix.screenmanager import ScreenManager, Screen
-from kivy.app import App
-from kivy.graphics.texture import Texture
-from kivy.uix.image import Image
-from kivy.uix.button import Button
-from kivy.uix.floatlayout import FloatLayout
-from kivy.uix.textinput import TextInput
+from settings import *
 
 # COR DA JANELA E TAMANHO
 Window.clearcolor = (0.9, 0.9, 0.9, 1)  # Cor mais suave para o fundo
@@ -106,13 +89,6 @@ class WelcomeScreen(Screen):
         name = self.username.text
         cpf = self.cpf.text
         apartamento = self.apartamento.text
-        response = requests.post(f'http://localhost:5000/resident', json= {
-            'cpf': cpf,
-            'name': name,
-            'apartment_number': apartamento
-        })
-        if response.ok:
-            print(f"User {name} created sucessfully!")
         print("Nome:", name, "\nCPF:", cpf, "\nApartamento:", apartamento)
         print('Cadastro efetuado com sucesso')
 
