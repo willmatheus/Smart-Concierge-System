@@ -2,7 +2,7 @@ from settings import *
 from AcessoVisitante import AcessoVisitante
 from mqtt import *
 
-# client = mqtt_connect()
+client = mqtt_connect()
 
 # Configurações da janela
 Window.clearcolor = (0, 0, 0, 1)
@@ -55,35 +55,58 @@ class KivyCV(Image):
         super().__init__(**kwargs)
         self.capture = capture
         self.screen_manager = screen_manager
+        self.unrecognized_timer = None  # Timer para controle de delay
         Clock.schedule_interval(self.update, 1.0 / fps)
 
     def update(self, dt):
+        if self.screen_manager.current == "acessoVisitante":
+            self.capture.release()
+            Clock.unschedule(self.update)
+            return
+
         ret, frame = self.capture.read()
+        if not ret:
+            return
+
         image, face = face_detector(frame)
+
         try:
             face = cv2.cvtColor(face, cv2.COLOR_BGR2GRAY)
             result = model.predict(face)
             confidence = int(100 * (1 - (result[1]) / 300))
             display_string = f"{confidence}% de similaridade"
             cv2.putText(image, display_string, (100, 120), cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 255, 0), 1)
+
             if confidence >= 85:
                 cv2.putText(image, "IDENTIFICADO", (220, 450), cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 255, 0), 2)
-                # client.publish(MQTT_TOPIC_LIBERAR_MORADOR, "Reconhecimento bem-sucedido!")
-                # mqtt_out(client, MQTT_TOPIC_LIBERAR_MORADOR)
+                client.publish(MQTT_TOPIC_LIBERAR_MORADOR, "true")
+                mqtt_out(client, MQTT_TOPIC_LIBERAR_MORADOR)
                 print("Liberando morador")
+
+                if self.unrecognized_timer:
+                    Clock.unschedule(self.unrecognized_timer)  # Cancela o redirecionamento
+                    self.unrecognized_timer = None
+
             else:
-                raise Exception("Confiabilidade baixa")
+                self.schedule_unrecognized_redirect()
 
         except Exception:
-            cv2.putText(image, "BLOQUEADO", (250, 450), cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 0, 255), 2)
-            #mqtt_out(client, MQTT_TOPIC_SOLICITACAO_ENTRADA)
-            # client.publish(MQTT_TOPIC_SOLICITACAO_ENTRADA, "Solicitando entrada")
-            self.screen_manager.current = "acessoVisitante"
+            self.schedule_unrecognized_redirect()
 
         buf = cv2.flip(frame, 0).tostring()
         image_texture = Texture.create(size=(frame.shape[1], frame.shape[0]), colorfmt='bgr')
         image_texture.blit_buffer(buf, colorfmt='bgr', bufferfmt='ubyte')
         self.texture = image_texture
+
+    def schedule_unrecognized_redirect(self):
+        if not self.unrecognized_timer:
+            self.unrecognized_timer = Clock.schedule_once(self.redirect_to_acesso_visitante, 5)  # Delay de 3 segundos
+
+    def redirect_to_acesso_visitante(self, *args):
+        print("Redirecionando para acesso visitante após falha de reconhecimento")
+        client.publish(MQTT_TOPIC_SOLICITACAO_ENTRADA, "false")
+        mqtt_out(client, MQTT_TOPIC_SOLICITACAO_ENTRADA)
+        self.screen_manager.current = "acessoVisitante"
 
 
 class SISTEMA(App):
