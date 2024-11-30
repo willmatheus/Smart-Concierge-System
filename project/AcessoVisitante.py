@@ -1,6 +1,7 @@
 from settings import *
 # from recogface import client
 # from mqtt import *
+import requests
 
 class AcessoVisitante(Screen):
     def __init__(self, **kwargs):
@@ -48,6 +49,15 @@ class AcessoVisitante(Screen):
         name = self.username.text
         cpf = self.cpf.text
         apartamento = self.apartamento.text
+
+        response = requests.post(f'http://localhost:1880/resident', json= {
+            'cpf': cpf,
+            'name': name,
+            'apartment_number': apartamento
+        })
+
+        print(response)
+
         # mqtt_out(MQTT_TOPIC_LIBERAR_VISITANTE, client)
         print("Nome:", name, "\nCPF:", cpf, "\nApartamento:", apartamento)
         print('Solicitação efetuada com sucesso')

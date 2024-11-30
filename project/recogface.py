@@ -2,7 +2,7 @@ from settings import *
 from AcessoVisitante import AcessoVisitante
 from mqtt import *
 
-client = mqtt_connect()
+# client = mqtt_connect()
 
 # Configurações da janela
 Window.clearcolor = (0, 0, 0, 1)
@@ -69,15 +69,14 @@ class KivyCV(Image):
             if confidence >= 85:
                 cv2.putText(image, "IDENTIFICADO", (220, 450), cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 255, 0), 2)
                 # client.publish(MQTT_TOPIC_LIBERAR_MORADOR, "Reconhecimento bem-sucedido!")
-                mqtt_out(client, MQTT_TOPIC_LIBERAR_MORADOR)
+                # mqtt_out(client, MQTT_TOPIC_LIBERAR_MORADOR)
                 print("Liberando morador")
             else:
                 raise Exception("Confiabilidade baixa")
 
         except Exception:
             cv2.putText(image, "BLOQUEADO", (250, 450), cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 0, 255), 2)
-            mqtt_out(client, MQTT_TOPIC_SOLICITACAO_ENTRADA)
-            print("Solicitando entrada")
+            #mqtt_out(client, MQTT_TOPIC_SOLICITACAO_ENTRADA)
             # client.publish(MQTT_TOPIC_SOLICITACAO_ENTRADA, "Solicitando entrada")
             self.screen_manager.current = "acessoVisitante"
 
