@@ -3,13 +3,15 @@ from settings import *
 # from mqtt import *
 import requests
 
+
 class AcessoVisitante(Screen):
     def __init__(self, **kwargs):
         super(AcessoVisitante, self).__init__(**kwargs)
         layout1 = FloatLayout()
 
         self.title1 = Label(text='Visita', font_size='50sp', color=[1, 1, 1, 1],
-                            font_name='Roboto-Bold', size_hint=(None, None), size=(700, 100), pos_hint={'x': 0.15, 'top': 0.85})
+                            font_name='Roboto-Bold', size_hint=(None, None), size=(700, 100),
+                            pos_hint={'x': 0.15, 'top': 0.85})
 
         self.username = TextInput(hint_text="Nome", multiline=False, size_hint=(0.7, None), height=45, font_size=18,
                                   background_normal='', background_active='',
@@ -17,17 +19,20 @@ class AcessoVisitante(Screen):
         self.username.border = [0, 0, 0, 0]
 
         self.cpf = TextInput(hint_text="CPF", multiline=False, size_hint=(0.7, None), height=45, font_size=18,
-                             background_normal='', background_active='', foreground_color=[0.1, 0.1, 0.1, 1], padding=10,
+                             background_normal='', background_active='', foreground_color=[0.1, 0.1, 0.1, 1],
+                             padding=10,
                              pos_hint={'x': 0.15, 'y': 0.5})
         self.cpf.border = [0, 0, 0, 0]
 
-        self.apartamento = TextInput(hint_text="Apartamento Visita", multiline=False, size_hint=(0.7, None), height=45, font_size=18,
-                                      background_normal='', background_active='', foreground_color=[0.1, 0.1, 0.1, 1], padding=10,
-                                      pos_hint={'x': 0.15, 'y': 0.4})
+        self.apartamento = TextInput(hint_text="Apartamento Visita", multiline=False, size_hint=(0.7, None), height=45,
+                                     font_size=18,
+                                     background_normal='', background_active='', foreground_color=[0.1, 0.1, 0.1, 1],
+                                     padding=10,
+                                     pos_hint={'x': 0.15, 'y': 0.4})
         self.apartamento.border = [0, 0, 0, 0]
 
         CANCELAR = Button(text='CANCELAR', on_press=self.cancelar, size_hint=(0.4, None), height=50, font_size=18,
-                      background_color=[1, 0, 0, 1], color=[1, 1, 1, 1], pos_hint={'x': 0.05, 'y': 0.2})
+                          background_color=[1, 0, 0, 1], color=[1, 1, 1, 1], pos_hint={'x': 0.05, 'y': 0.2})
 
         SOLICITAR = Button(text='SOLICITAR', on_press=self.solicitar, size_hint=(0.4, None), height=50, font_size=18,
                            background_color=[0.4, 0.4, 0.8, 1], color=[1, 1, 1, 1], pos_hint={'x': 0.55, 'y': 0.2})
@@ -50,10 +55,9 @@ class AcessoVisitante(Screen):
         cpf = self.cpf.text
         apartamento = self.apartamento.text
 
-        response = requests.post(f'http://localhost:1880/resident', json= {
-            'cpf': cpf,
+        response = requests.post(f'http://localhost:1880/visitor', json={
             'name': name,
-            'apartment_number': apartamento
+            'cpf': cpf
         })
 
         print(response)
@@ -62,11 +66,13 @@ class AcessoVisitante(Screen):
         print("Nome:", name, "\nCPF:", cpf, "\nApartamento:", apartamento)
         print('Solicitação efetuada com sucesso')
 
+
 class INTERFACE(App):
     def build(self):
         sm = ScreenManager()
         sm.add_widget(AcessoVisitante(name='acessoVisitante'))
         return sm
-    
+
+
 if __name__ == '__main__':
     INTERFACE().run()

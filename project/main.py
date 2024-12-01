@@ -1,3 +1,5 @@
+import requests
+
 from settings import *
 
 # COR DA JANELA E TAMANHO
@@ -89,6 +91,12 @@ class WelcomeScreen(Screen):
         name = self.username.text
         cpf = self.cpf.text
         apartamento = self.apartamento.text
+        response = requests.post(f'http://localhost:5000/resident', json={
+            'cpf': cpf,
+            'name': name,
+            'apartment_number': apartamento
+        })
+        print(response.json())
         print("Nome:", name, "\nCPF:", cpf, "\nApartamento:", apartamento)
         print('Cadastro efetuado com sucesso')
 
