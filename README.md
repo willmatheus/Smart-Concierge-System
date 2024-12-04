@@ -67,8 +67,3 @@ Este projeto implementa uma solução de portaria inteligente utilizando microco
 ```
 
 ---
-
-## **Contato**
-Se precisar de ajuda ou tiver dúvidas, abra uma *issue* no repositório.
-
-🎉 **Divirta-se com sua nova portaria inteligente!**
